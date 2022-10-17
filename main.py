@@ -8,18 +8,19 @@ from flask import flash, Request
 
 @app.route('/create', methods=['POST'])
 def create_student():
-   
+    con = None
+    curs = None
     try:
         _json = request.json
         _user_name = _json['user_name']
         _email = _json['email']
-        con = mysql.connect()
-        
-        curs = con.cursor(pymysql.cursors.DictCursor)
-        if _user_name and _email == 'POST':
-            
+        if _user_name and _email:
+            # con = mysql.connect()
+            # curs = con.cursor(pymysql.cursors.DictCursor)
             sqlQuery = "INSERT INTO users(user_name, email) VALUES(%s, %s)"
             bindData = (_user_name, _email)
+            con = mysql.connect()
+            curs = con.cursor()
             curs.execute(sqlQuery, bindData)
             con.commit()
             response = jsonify('Employee added successfully')
@@ -65,15 +66,15 @@ def get_user(user_name):
         cursor.close()
         con.close()
 
-@app.route('/update', methods=['PUT'])
-def update_user():
+@app.route('/update/<string:username>', methods=['PUT'])
+def update_user(username):
     try:
         _json = request.json
         _user_name = _json['user_name']
         _email = _json['email']
-        if _user_name and _email == 'PUT':
-            sqlQuery = "UPDATE users SET user_name = %s, email = %s"
-            bindData = (_user_name, _email)
+        if _user_name and _email and username:
+            sqlQuery = "UPDATE users SET user_name = %s, email = %s WHERE user_name = %s"
+            bindData = (_user_name, _email, username)
             con = mysql.connect()
             cursor = con.cursor(pymysql.cursors.DictCursor)
             cursor.execute(sqlQuery, bindData)
