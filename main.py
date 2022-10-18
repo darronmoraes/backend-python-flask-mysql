@@ -12,18 +12,22 @@ def create_student():
     curs = None
     try:
         _json = request.json
-        _user_name = _json['user_name']
+        _first_name = _json['first_name']
+        _last_name = _json['last_name']
+        _gender = _json['gender']
         _email = _json['email']
-        if _user_name and _email:
+        _country = _json['country']
+        _mobile = _json['mobile']
+        if _first_name and _last_name and _gender and _email and _country and _mobile:
             # con = mysql.connect()
             # curs = con.cursor(pymysql.cursors.DictCursor)
-            sqlQuery = "INSERT INTO users(user_name, email) VALUES(%s, %s)"
-            bindData = (_user_name, _email)
+            sqlQuery = "INSERT INTO student(first_name, last_name, gender, email, country, mobile) VALUES(%s, %s, %s, %s, %s, %s)"
+            bindData = (_first_name, _last_name, _gender, _email, _country, _mobile)
             con = mysql.connect()
             curs = con.cursor()
             curs.execute(sqlQuery, bindData)
             con.commit()
-            response = jsonify('Employee added successfully')
+            response = jsonify('Student added successfully')
             response.status_code = 200
             return response
         else:
@@ -39,7 +43,7 @@ def show_student():
     try:
         con = mysql.connect()
         cursor = con.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM users")
+        cursor.execute("SELECT * FROM student")
         empRows = cursor.fetchall()
         response = jsonify(empRows)
         response.status_code = 200
@@ -50,12 +54,12 @@ def show_student():
         cursor.close()
         con.close()
 
-@app.route('/user/<string:user_name>')
-def get_user(user_name):
+@app.route('/user/<string:first_name>')
+def get_user(first_name):
     try:
         con = mysql.connect()
         cursor = con.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM users WHERE user_name = %s", user_name)
+        cursor.execute("SELECT * FROM student WHERE first_name = %s", first_name)
         empRows = cursor.fetchall()
         response = jsonify(empRows)
         response.status_code = 200
@@ -66,20 +70,22 @@ def get_user(user_name):
         cursor.close()
         con.close()
 
-@app.route('/update/<string:username>', methods=['PUT'])
-def update_user(username):
+@app.route('/update/<string:first_name>', methods=['PUT'])
+def update_user(first_name):
     try:
         _json = request.json
-        _user_name = _json['user_name']
+        _first_name = _json['first_name']
+        _last_name = _json['last_name']
         _email = _json['email']
-        if _user_name and _email and username:
-            sqlQuery = "UPDATE users SET user_name = %s, email = %s WHERE user_name = %s"
-            bindData = (_user_name, _email, username)
+        _mobile = _json['mobile']
+        if _first_name and _last_name and _email and _mobile:
+            sqlQuery = "UPDATE student SET first_name = %s, last_name = %s, email = %s, mobile = %s WHERE first_name = %s"
+            bindData = ( _first_name, _last_name, _email, _mobile, first_name)
             con = mysql.connect()
             cursor = con.cursor(pymysql.cursors.DictCursor)
             cursor.execute(sqlQuery, bindData)
             con.commit()
-            response = jsonify('Employee updated successfully')
+            response = jsonify('Student updated successfully')
             response.status_code = 200
             return response
         else:
@@ -90,14 +96,14 @@ def update_user(username):
         cursor.close()
         con.close()
 
-@app.route('/delete/<string:user_name>', methods=['DELETE'])
-def delete_user(user_name):
+@app.route('/delete/<string:first_name>', methods=['DELETE'])
+def delete_user(first_name):
     try:
         con = mysql.connect()
         cursor = con.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("DELETE FROM users WHERE user_name = %s", (user_name))
+        cursor.execute("DELETE FROM student WHERE first_name = %s", (first_name))
         con.commit()
-        response = jsonify('Employee deleted successfully')
+        response = jsonify('Student deleted successfully')
         response.status_code = 200
         return response
     except Exception as e:
